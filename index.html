@@ -216,7 +216,13 @@
 function safeGet(k){ try{ return localStorage.getItem(k) || ''; }catch(e){ return ''; } }
 function safeSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 
-let apiUrl = safeGet('incident_api_url') || '';
+// Built-in default Apps Script Web App URL — every device/browser that
+// opens this page will automatically use this unless it has manually
+// saved a different one before (which still takes priority so existing
+// setups aren't overridden).
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxLw8pPdrikcmPpOCTRityUXJnzs6EUo_56p6m7BkVrw6PrFBRZfOBVGZSbCni6Vhim7A/exec';
+
+let apiUrl = safeGet('incident_api_url') || DEFAULT_API_URL;
 const el = id => document.getElementById(id);
 const memStore = [];
 
