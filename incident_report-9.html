@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Incident Report — HEXA FOOD SDN BHD (HEXA 3)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Dancing+Script:wght@600;700&display=swap');
+  :root{
+    --ink:#1F2A24; --ink-soft:#4A554E; --paper:#F6F7F3; --card:#FFFFFF;
+    --line:#D7DCD2; --line-strong:#B7C0AF; --green:#2E7D5B; --green-100:#E1F0E6;
+    --green-800:#1B4A36; --amber:#B9791A; --amber-100:#FBEFDA; --amber-800:#6B4408;
+    --red:#B23A2E; --red-100:#FBEAE7;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,-apple-system,sans-serif;padding:14px;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .wrap{max-width:820px;margin:0 auto;}
+  .apibar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff7e6;border:1px solid #e8c778;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12.5px;color:#6B4408;}
+  .apibar.ok{background:var(--green-100);border-color:var(--green);color:var(--green-800);}
+  .apibar a{color:inherit;font-weight:700;text-decoration:underline;cursor:pointer;}
+  .masthead{display:grid;grid-template-columns:1fr 170px;border:1.5px solid var(--ink);background:var(--card);border-radius:6px;overflow:hidden;margin-bottom:14px;}
+  .masthead-main{display:flex;flex-direction:column;justify-content:center;gap:2px;padding:12px 14px;border-right:1.5px solid var(--ink);text-align:center;}
+  .masthead-main .co{font-weight:700;font-size:14px;}
+  .masthead-main .title{font-weight:600;font-size:14px;color:var(--green-800);}
+  .masthead-meta{display:flex;flex-direction:column;font-size:11px;}
+  .masthead-meta div{display:flex;justify-content:space-between;gap:6px;padding:5px 10px;border-bottom:1px solid var(--line);}
+  .masthead-meta div:last-child{border-bottom:none;}
+  .masthead-meta span:first-child{color:var(--ink-soft);}
+  .masthead-meta span:last-child{font-family:'IBM Plex Mono',monospace;font-weight:600;}
+  .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  .tab{flex:1;min-width:120px;text-align:center;padding:10px 8px;border:1px solid var(--line-strong);border-radius:8px;background:var(--card);font-weight:600;font-size:13px;color:var(--ink-soft);cursor:pointer;user-select:none;}
+  .tab.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px;}
+  .field{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+  .field label{font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;}
+  .field input, .field textarea{font-family:inherit;font-size:14px;padding:9px 10px;border:1px solid var(--line-strong);border-radius:6px;background:#fff;color:var(--ink);resize:vertical;}
+  .field textarea{min-height:90px;line-height:1.5;}
+  .field input.sig-input{font-family:'Dancing Script',cursive;font-size:20px;font-weight:600;color:var(--green-800);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .signoff-title{font-weight:700;font-size:14px;margin:6px 0 10px;}
+  .btn{font-family:inherit;font-weight:600;font-size:13.5px;padding:10px 16px;border-radius:7px;border:1px solid var(--line-strong);background:#fff;color:var(--ink);cursor:pointer;}
+  .btn:active{transform:scale(.98);}
+  .btn-primary{background:var(--green);border-color:var(--green);color:#fff;}
+  .btn-danger{color:var(--red);border-color:var(--red-100);}
+  .status-pill{font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:20px;background:var(--green-100);color:var(--green-800);display:inline-block;}
+  .status-pill.unsaved{background:var(--amber-100);color:var(--amber-800);}
+  .filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;}
+  .filter-row .field{margin-bottom:0;}
+  .checkfield{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-soft);}
+  .recrow{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
+  .recrow .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .recrow .d{font-family:'IBM Plex Mono',monospace;font-weight:700;}
+  .recrow .loc{color:var(--ink-soft);font-size:13px;flex:1;}
+  .recrow .btns{display:flex;gap:6px;}
+  .recrow .btns a.btn{text-decoration:none;display:inline-flex;align-items:center;}
+  .recrow .snippet{font-size:12.5px;color:var(--ink-soft);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .empty-note{color:var(--ink-soft);font-size:13px;padding:24px;text-align:center;}
+  .settings-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .settings-row input{flex:1;min-width:220px;font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--line-strong);border-radius:6px;}
+  .hint{font-size:11.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5;}
+  .hint code{background:var(--paper);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;}
+  .verified-badge{font-size:11px;font-weight:700;color:var(--green);background:var(--green-100);border:1px solid var(--green);border-radius:5px;padding:2px 7px;}
+
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,25,22,0.55);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+  .modal-overlay.show{display:flex;}
+  .modal-box{background:#fff;border-radius:12px;width:min(680px,94vw);max-height:92vh;overflow-y:auto;padding:16px;box-shadow:0 10px 40px rgba(0,0,0,0.3);}
+  .modal-preview{border:1px solid var(--line);border-radius:8px;background:#fafaf8;height:min(48vh,380px);overflow:auto;padding:8px;margin-bottom:14px;}
+  .modal-preview .ppage{height:auto;}
+  .modal-title{font-weight:700;font-size:16px;margin-bottom:4px;}
+  .modal-sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;}
+  .sig-field{margin-bottom:12px;}
+  .sig-field label{font-size:11.5px;color:var(--ink-soft);display:block;margin-bottom:3px;}
+  .sig-field input{width:100%;box-sizing:border-box;padding:10px 10px 6px;border:none;border-bottom:2px solid var(--ink);background:transparent;font-family:'Dancing Script',cursive;font-size:30px;font-weight:600;color:#1B4A36;}
+  .sig-field input::placeholder{font-family:'Inter',sans-serif;font-size:13px;font-weight:400;color:var(--ink-soft);}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px;}
+
+  #printRoot{display:none;}
+  @page{ size: A4 portrait; margin: 10mm; }
+  @media print{
+    html,body{height:100%;}
+    body *{visibility:hidden;}
+    #printRoot, #printRoot *{visibility:visible;}
+    #printRoot{display:block;position:absolute;left:0;top:0;width:100%;height:calc(297mm - 20mm);}
+    .ppage{page-break-after:always;}
+    .ppage:last-child{page-break-after:auto;}
+  }
+  .ppage{display:flex;flex-direction:column;height:100%;}
+  .ppage-head{flex:0 0 auto;display:grid;grid-template-columns:1fr 130px;border:1.2px solid #222;margin-bottom:10px;border-radius:3px;overflow:hidden;}
+  .ppage-head .l{padding:8px 10px;display:flex;flex-direction:column;justify-content:center;gap:3px;border-right:1.2px solid #222;text-align:center;}
+  .ppage-head .l b{font-size:13px;}
+  .ppage-head .l span{font-size:12px;font-weight:600;color:#1B4A36;}
+  .ppage-head .r{padding:6px 10px;display:flex;flex-direction:column;gap:2px;justify-content:center;}
+  .ppage-head .r div{display:flex;justify-content:flex-start;gap:5px;font-size:10px;}
+  .ppage-head .r div span:first-child{min-width:62px;}
+  .ptable-wrap{flex:1 1 auto;display:flex;min-height:0;}
+  .ptable{width:100%;height:100%;border-collapse:collapse;font-size:11.5px;table-layout:fixed;}
+  .ptable td{border:1px solid #333;padding:10px 12px;vertical-align:top;}
+  .ptable td.lbl{width:180px;font-weight:600;background:#f7f7f5;}
+  .ptable td.val{white-space:pre-wrap;line-height:1.5;}
+  .ptable .psig{display:block;font-family:'Dancing Script','Segoe Script','Bradley Hand','Brush Script MT','Apple Chancery','Comic Sans MS',cursive;font-weight:600;font-size:22px;color:#1B4A36;line-height:1.1;margin-bottom:6px;}
+  .ptable td.val .sod-line{display:block;margin-bottom:2px;}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app">
+
+  <div class="apibar" id="apiBar">
+    Google Sheet not connected yet — data will only stay on this device/session.
+    <a id="apiBarLink">Go to setup</a>
+  </div>
+
+  <div class="masthead">
+    <div class="masthead-main">
+      <div class="co">HEXA FOOD SDN BHD (HEXA 3)</div>
+      <div class="title">Incident Report — Digital</div>
+    </div>
+    <div class="masthead-meta">
+      <div><span>Form No.</span><span>HX3-F33</span></div>
+      <div><span>Issue No.</span><span>1</span></div>
+      <div><span>Issue Date</span><span>01/03/2022</span></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-panel="new">New Report</div>
+    <div class="tab" data-panel="records">Records / Print</div>
+    <div class="tab" data-panel="settings">Google Sheet</div>
+  </div>
+
+  <div class="panel active" id="panel-new">
+    <div class="card">
+      <div class="row2">
+        <div class="field"><label>Date</label><input type="date" id="fDate"></div>
+        <div class="field"><label>Time</label><input type="time" id="fTime"></div>
+      </div>
+      <div class="field"><label>Location</label><input type="text" id="fLocation" placeholder="Where did it happen?"></div>
+      <div class="field"><label>Description &amp; Reason of Incident</label><textarea id="fDescription" placeholder="What happened, and why?"></textarea></div>
+      <div class="field"><label>Product Affected &amp; Action Taken</label><textarea id="fProduct" placeholder="Which product(s), and what was done immediately"></textarea></div>
+      <div class="field"><label>Corrective / Preventive Measures</label><textarea id="fMeasures" placeholder="Steps to fix and prevent recurrence"></textarea></div>
+
+      <div class="signoff-title">Reported by</div>
+      <div class="row3">
+        <div class="field"><label>Name</label><input type="text" id="rName"></div>
+        <div class="field"><label>Position</label><input type="text" id="rPosition"></div>
+        <div class="field"><label>Date</label><input type="date" id="rDate"></div>
+      </div>
+      <div class="field"><label>Signature</label><input type="text" id="rSig" class="sig-input" placeholder="Type your name to sign"></div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-top:6px;">
+        <button class="btn btn-primary" id="addBtn">Submit Incident Report</button>
+        <span class="status-pill" id="statusPill">Ready</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-records">
+    <div class="filter-row">
+      <div class="field"><label>Filter by month (optional)</label><input type="month" id="monthFilter"></div>
+      <button class="btn" id="loadLogBtn">Show reports</button>
+      <label class="checkfield"><input type="checkbox" id="printHeaderToggle" checked> Include header when printing</label>
+    </div>
+    <div id="logWrap"><div class="empty-note">Tap "Show reports" to load the list.</div></div>
+  </div>
+
+  <div class="panel" id="panel-settings">
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:10px;">Google Sheet connection</div>
+      <div class="settings-row">
+        <input type="text" id="sheetUrlInput" placeholder="Paste your Google Apps Script Web App URL here">
+        <button class="btn btn-primary" id="saveUrlBtn">Save URL</button>
+      </div>
+      <div class="hint">
+        Every report you submit is written straight to your Google Sheet (tab "Incident Log"), so anyone using this same link sees the same records, and it survives closing the tab.<br><br>
+        <b>One-time setup:</b><br>
+        1. Open a blank Google Sheet → <b>Extensions → Apps Script</b><br>
+        2. Copy all the code from the included file <code>incident_apps_script.gs</code>, paste it in, then <b>Deploy → New deployment → Web app</b>, "Who has access" = Anyone<br>
+        3. Copy the deployment URL, paste it above, tap Save URL.<br><br>
+        To host this page online, drag this HTML file onto a static host such as GitHub Pages — ask if you'd like the exact steps.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="printRoot"></div>
+
+<div class="modal-overlay" id="verifyModal">
+  <div class="modal-box">
+    <div class="modal-title" id="vmTitle">Verify report</div>
+    <div class="modal-sub">Review the report below, then sign off to mark it as verified.</div>
+    <div class="modal-preview" id="vmPreview"></div>
+    <div class="modal-sign-title" style="font-weight:700;font-size:14px;margin-bottom:8px;">Verified by</div>
+    <div class="row3">
+      <div class="field"><label>Name</label><input type="text" id="vmName" placeholder="Full name"></div>
+      <div class="field"><label>Position</label><input type="text" id="vmPos" placeholder="e.g. QA Executive"></div>
+      <div class="field"><label>Date</label><input type="date" id="vmDate"></div>
+    </div>
+    <div class="sig-field">
+      <label>Signature</label>
+      <input type="text" id="vmSignature" placeholder="Type your name to sign">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="vmCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="vmConfirmBtn">Confirm &amp; Verify</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function safeGet(k){ try{ return localStorage.getItem(k) || ''; }catch(e){ return ''; } }
+function safeSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+let apiUrl = safeGet('incident_api_url') || '';
+const el = id => document.getElementById(id);
+const memStore = [];
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function escapeHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function nl2br(s){ return escapeHtml(s).replace(/\n/g,'<br>'); }
+
+// Printing can fire before the Dancing Script web font has actually
+// finished downloading, so the signature silently falls back to a plain
+// font. Explicitly load it and wait, so the print/PDF always gets the
+// real cursive font.
+async function ensureSignatureFontReady_(){
+  try{
+    await document.fonts.load("600 22px 'Dancing Script'");
+    await document.fonts.ready;
+  }catch(e){ /* if the Font Loading API isn't available, just proceed */ }
+}
+
+function refreshApiBar(){
+  const bar = el('apiBar');
+  if(apiUrl){
+    bar.classList.add('ok');
+    bar.innerHTML = 'Connected to Google Sheet. Reports are saved online and shared with anyone using this same connection.';
+  } else {
+    bar.classList.remove('ok');
+    bar.innerHTML = 'Google Sheet not connected yet — data will only stay on this device/session. <a id="apiBarLink">Go to setup</a>';
+    const link = el('apiBarLink');
+    if(link) link.addEventListener('click', ()=> document.querySelector('[data-panel="settings"]').click());
+  }
+}
+function setStatus(text, kind){
+  const p = el('statusPill');
+  p.textContent = text;
+  p.className = 'status-pill' + (kind==='unsaved' ? ' unsaved' : '');
+}
+
+// ---------------- Data layer ----------------
+async function apiAddReport(report){
+  memStore.push(report);
+  if(!apiUrl) return {ok:false, reason:'no-url'};
+  try{
+    const res = await fetch(apiUrl, {method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({action:'add', report})});
+    const text = await res.text();
+    let j; try{ j = JSON.parse(text); }catch(e){
+      console.error('[incident] ADD: non-JSON response:', text);
+      return {ok:false, reason:'bad-response', raw:text};
+    }
+    if(j.ok===false){ console.error('[incident] ADD: script error:', j.error); return {ok:false, reason:'script-error', raw:j.error}; }
+    return {ok:true};
+  }catch(e){ console.error('[incident] ADD: fetch failed:', e); return {ok:false, reason:'fetch-error', raw:String(e)}; }
+}
+async function apiListReports(month){
+  if(apiUrl){
+    try{
+      const url = apiUrl + (month ? ('?action=month&month=' + encodeURIComponent(month)) : '?action=list');
+      const res = await fetch(url);
+      const text = await res.text();
+      let j; try{ j = JSON.parse(text); }catch(e){ console.error('[incident] LIST: non-JSON response:', text); j = null; }
+      if(j && j.ok) return j.rows || [];
+      if(j && j.ok===false) console.error('[incident] LIST: script error:', j.error);
+    }catch(e){ console.error('[incident] LIST: fetch failed:', e); }
+  }
+  return month ? memStore.filter(r=> (r.date||'').startsWith(month)) : memStore.slice();
+}
+async function apiDeleteReport(rowNum){
+  if(!apiUrl) return {ok:false, reason:'no-url'};
+  try{
+    const res = await fetch(apiUrl, {method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({action:'delete', row: rowNum})});
+    const text = await res.text();
+    let j; try{ j = JSON.parse(text); }catch(e){ return {ok:false, reason:'bad-response', raw:text}; }
+    if(j.ok===false) return {ok:false, reason:'script-error', raw:j.error};
+    return {ok:true};
+  }catch(e){ return {ok:false, reason:'fetch-error', raw:String(e)}; }
+}
+async function apiVerifyReport(rowNum, verified){
+  if(!apiUrl) return {ok:false, reason:'no-url'};
+  try{
+    const res = await fetch(apiUrl, {method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({action:'verify', row: rowNum, verified})});
+    const text = await res.text();
+    let j; try{ j = JSON.parse(text); }catch(e){ return {ok:false, reason:'bad-response', raw:text}; }
+    if(j.ok===false) return {ok:false, reason:'script-error', raw:j.error};
+    return {ok:true};
+  }catch(e){ return {ok:false, reason:'fetch-error', raw:String(e)}; }
+}
+
+// ---------------- New Report ----------------
+el('fDate').value = todayStr();
+el('rDate').value = todayStr();
+
+function collectReport(){
+  return {
+    date: el('fDate').value || todayStr(),
+    time: el('fTime').value,
+    location: el('fLocation').value.trim(),
+    description: el('fDescription').value.trim(),
+    product: el('fProduct').value.trim(),
+    measures: el('fMeasures').value.trim(),
+    reportedName: el('rName').value.trim(),
+    reportedPosition: el('rPosition').value.trim(),
+    reportedSig: el('rSig').value.trim(),
+    reportedDate: el('rDate').value,
+    verifiedName: '', verifiedPosition: '', verifiedSig: '', verifiedDate: ''
+  };
+}
+
+el('addBtn').addEventListener('click', async ()=>{
+  const report = collectReport();
+  if(!report.location && !report.description){ alert('Please fill in at least the Location and Description.'); return; }
+  setStatus('Saving...', 'unsaved');
+  const res = await apiAddReport(report);
+  if(res.ok){
+    setStatus('Submitted ✓');
+    ['fLocation','fDescription','fProduct','fMeasures','rName','rPosition','rSig'].forEach(id=> el(id).value='');
+    el('fDate').value = todayStr(); el('fTime').value = '';
+    el('rDate').value = todayStr();
+  } else if(res.reason==='no-url'){
+    setStatus('Saved on this device only', 'unsaved');
+  } else {
+    setStatus('Save failed — see Console (F12)', 'unsaved');
+    console.error('[incident] Add failed, reason:', res.reason, res.raw||'');
+  }
+});
+
+// ---------------- Records / Print ----------------
+function buildPrintPage(r, includeHeader){
+  const headerHtml = includeHeader ? `
+    <div class="ppage-head">
+      <div class="l"><b>HEXA FOOD SDN BHD (HEXA 3)</b><span>INCIDENT REPORT</span></div>
+      <div class="r">
+        <div><span>Form No.:</span><span>HX3-F33</span></div>
+        <div><span>Issue No:</span><span>1</span></div>
+        <div><span>Issue Date:</span><span>01/03/2022</span></div>
+        <div><span>Page:</span><span>1 of 1</span></div>
+      </div>
+    </div>` : '';
+  return `
+  <div class="ppage">
+    ${headerHtml}
+    <div class="ptable-wrap">
+    <table class="ptable">
+      <tr><td class="lbl">Date</td><td class="val">${escapeHtml(r.date)}</td></tr>
+      <tr><td class="lbl">Time</td><td class="val">${escapeHtml(r.time)}</td></tr>
+      <tr><td class="lbl">Location</td><td class="val">${escapeHtml(r.location)}</td></tr>
+      <tr><td class="lbl">Description &amp; Reason of Incident</td><td class="val">${nl2br(r.description)}</td></tr>
+      <tr><td class="lbl">Product Affected &amp; Action Taken</td><td class="val">${nl2br(r.product)}</td></tr>
+      <tr><td class="lbl">Corrective/ Preventive Measures</td><td class="val">${nl2br(r.measures)}</td></tr>
+      <tr><td class="lbl">Reported by</td>
+          <td class="val">${r.reportedSig ? `<span class="psig">${escapeHtml(r.reportedSig)}</span>` : ''}<span class="sod-line">Name: ${escapeHtml(r.reportedName)}</span><span class="sod-line">Position: ${escapeHtml(r.reportedPosition)}</span><span class="sod-line">Date: ${escapeHtml(r.reportedDate)}</span></td></tr>
+      <tr><td class="lbl">Verified by</td>
+          <td class="val">${r.verifiedSig ? `<span class="psig">${escapeHtml(r.verifiedSig)}</span>` : ''}<span class="sod-line">Name: ${escapeHtml(r.verifiedName)}</span><span class="sod-line">Position: ${escapeHtml(r.verifiedPosition)}</span><span class="sod-line">Date: ${escapeHtml(r.verifiedDate)}</span></td></tr>
+    </table>
+    </div>
+  </div>`;
+}
+async function loadLog(){
+  const month = el('monthFilter').value;
+  const wrap = el('logWrap');
+  wrap.innerHTML = '<div class="empty-note">Loading...</div>';
+  const rows = await apiListReports(month);
+  if(rows.length===0){ wrap.innerHTML = '<div class="empty-note">No reports found.</div>'; return; }
+  rows.sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+  wrap.innerHTML = '';
+  rows.forEach(r=>{
+    const row = document.createElement('div');
+    row.className = 'recrow';
+    const isVerified = !!(r.verifiedName && r.verifiedName.trim());
+    row.innerHTML = `
+      <div class="top">
+        <span class="d mono">${escapeHtml(r.date)}</span>
+        <span class="loc">${escapeHtml(r.location)}</span>
+        ${isVerified ? '<span class="verified-badge">Verified ✓</span>' : ''}
+        <span class="btns">
+          ${r.pdfLink ? `<a class="btn" href="${escapeHtml(r.pdfLink)}" target="_blank" rel="noopener">PDF ↗</a>` : ''}
+          <button class="btn" data-act="verify">${isVerified?'Re-verify':'Verify'}</button>
+          <button class="btn" data-act="print">Print</button>
+          <button class="btn btn-danger" data-act="delete">Delete</button>
+        </span>
+      </div>
+      <div class="snippet">${escapeHtml(r.description)}</div>`;
+    row.querySelector('[data-act="verify"]').addEventListener('click', ()=>{
+      openVerifyModal(r, month);
+    });
+    row.querySelector('[data-act="print"]').addEventListener('click', async ()=>{
+      const includeHeader = el('printHeaderToggle').checked;
+      el('printRoot').innerHTML = buildPrintPage(r, includeHeader);
+      await ensureSignatureFontReady_();
+      window.print();
+    });
+    row.querySelector('[data-act="delete"]').addEventListener('click', async ()=>{
+      if(!confirm('Delete this incident report? This cannot be undone.')) return;
+      const res = await apiDeleteReport(r.row);
+      if(res.ok) loadLog();
+      else alert('Could not delete — check Console (F12) or the Google Sheet connection.');
+    });
+    wrap.appendChild(row);
+  });
+}
+el('loadLogBtn').addEventListener('click', loadLog);
+
+// ---------------- Verify modal ----------------
+let verifyingRow = null, verifyingMonth = null;
+function openVerifyModal(r, month){
+  verifyingRow = r; verifyingMonth = month;
+  el('vmTitle').textContent = `Verify report — ${r.date} · ${r.location || ''}`;
+  el('vmPreview').innerHTML = `<div style="height:100%;">${buildPrintPage(r, true)}</div>`;
+  el('vmName').value = r.verifiedName || '';
+  el('vmPos').value = r.verifiedPosition || '';
+  el('vmDate').value = r.verifiedDate || todayStr();
+  el('vmSignature').value = r.verifiedSig || '';
+  el('verifyModal').classList.add('show');
+}
+function closeVerifyModal(){
+  el('verifyModal').classList.remove('show');
+  el('vmPreview').innerHTML = '';
+  verifyingRow = null; verifyingMonth = null;
+}
+el('vmCancelBtn').addEventListener('click', closeVerifyModal);
+el('verifyModal').addEventListener('click', e=>{ if(e.target.id==='verifyModal') closeVerifyModal(); });
+el('vmConfirmBtn').addEventListener('click', async ()=>{
+  const name = el('vmName').value.trim();
+  const pos = el('vmPos').value.trim();
+  const date = el('vmDate').value;
+  const signature = el('vmSignature').value.trim();
+  if(!name || !pos){ alert('Please fill in Name and Position before confirming.'); return; }
+  const r = verifyingRow, month = verifyingMonth;
+  el('vmConfirmBtn').disabled = true;
+  el('vmConfirmBtn').textContent = 'Saving...';
+  const res = await apiVerifyReport(r.row, {verifiedName:name, verifiedPosition:pos, verifiedDate:date, verifiedSig:signature});
+  el('vmConfirmBtn').disabled = false;
+  el('vmConfirmBtn').textContent = 'Confirm & Verify';
+  if(res.ok){
+    closeVerifyModal();
+    loadLog();
+  } else if(res.reason==='no-url'){
+    r.verifiedName=name; r.verifiedPosition=pos; r.verifiedDate=date; r.verifiedSig=signature;
+    closeVerifyModal();
+    loadLog();
+  } else {
+    alert('Could not save verification — check Console (F12) or the Google Sheet connection.');
+  }
+});
+
+// ---------------- Google Sheet connection ----------------
+el('sheetUrlInput').value = apiUrl;
+refreshApiBar();
+el('saveUrlBtn').addEventListener('click', ()=>{
+  apiUrl = el('sheetUrlInput').value.trim();
+  safeSet('incident_api_url', apiUrl);
+  refreshApiBar();
+  alert(apiUrl ? 'Connected. Reports will now save to your Google Sheet.' : 'URL cleared.');
+});
+
+// ---------------- Tabs ----------------
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    el('panel-'+tab.dataset.panel).classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
